@@ -1,114 +1,128 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
 
-archivesBaseName = 'design'
+archivesBaseName = getArchivesBaseName(project.name)
+version = rootProject.ext.mdcLibraryVersion
 
 dependencies {
-  compile 'com.android.support:support-annotations:25.1.0'
-  compile 'com.android.support:support-v4:25.1.0'
-  compile 'com.android.support:appcompat-v7:25.1.0'
-  compile 'com.android.support:recyclerview-v7:25.1.0'
-  compile 'com.android.support:transition:25.1.0'
+  api compatibility("annotations")
+  api compatibility("compat")
+  api compatibility("core_ui")
+  api compatibility("core_utils")
+  api compatibility("fragment")
+  api compatibility("transition")
+  api compatibility("v7/appcompat")
+  api compatibility("v7/cardview")
+  api compatibility("v7/recyclerview")
 
-  androidTestCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
+  testImplementation("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
     exclude module: 'support-annotations'
   }
-  androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
-    exclude module: 'support-annotations'
-  }
-  androidTestCompile ("com.android.support.test.espresso:espresso-contrib:${project.rootProject.ext.espressoVersion}") {
-    exclude group: 'com.android.support'
-  }
-  androidTestCompile 'org.mockito:mockito-core:1.9.5'
-  androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-  androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-
-  testCompile ("com.android.support.test:runner:${project.rootProject.ext.testRunnerVersion}") {
-    exclude module: 'support-annotations'
-  }
-  testCompile 'junit:junit:4.12'
+  testImplementation "junit:junit:4.12"
+  testImplementation "com.google.truth:truth:0.35"
+  testImplementation "org.mockito:mockito-core:1.9.5"
+  testImplementation "org.robolectric:robolectric:3.3.2"
 }
 
+def srcDirs = [
+  'com/google/android/material/animation',
+  'com/google/android/material/appbar',
+  'com/google/android/material/behavior',
+  'com/google/android/material/bottomappbar',
+  'com/google/android/material/bottomnavigation',
+  'com/google/android/material/bottomsheet',
+  'com/google/android/material/button',
+  'com/google/android/material/canvas',
+  'com/google/android/material/card',
+  'com/google/android/material/chip',
+  'com/google/android/material/circularreveal',
+  'com/google/android/material/circularreveal/cardview',
+  'com/google/android/material/circularreveal/coordinatorlayout',
+  'com/google/android/material/color',
+  'com/google/android/material/dialog',
+  'com/google/android/material/drawable',
+  'com/google/android/material/expandable',
+  'com/google/android/material/floatingactionbutton',
+  'com/google/android/material/internal',
+  'com/google/android/material/math',
+  'com/google/android/material/navigation',
+  'com/google/android/material/resources',
+  'com/google/android/material/ripple',
+  'com/google/android/material/shape',
+  'com/google/android/material/shadow',
+  'com/google/android/material/snackbar',
+  'com/google/android/material/stateful',
+  'com/google/android/material/tabs',
+  'com/google/android/material/textfield',
+  'com/google/android/material/theme',
+  'com/google/android/material/transformation',
+  'com/google/android/material/typography',
+]
+
 android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
-  buildToolsVersion rootProject.ext.buildToolsVersion
-
-  defaultConfig {
-    minSdkVersion rootProject.ext.minSdkVersion
-    targetSdkVersion rootProject.ext.targetSdkVersion
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    // This disables the builds tools automatic vector -> PNG generation
-    generatedDensities = []
-  }
-
   sourceSets {
-    main.manifest.srcFile 'AndroidManifest.xml'
-    main.java.srcDirs = [
-      'base',
-      'gingerbread',
-      'honeycomb',
-      'honeycomb-mr1',
-      'ics',
-      'lollipop',
-      'src'
+    main.manifest.srcFile 'java/com/google/android/material/AndroidManifest.xml'
+    main.java.srcDir 'java'
+    main.java.includes = srcDirs.collect { it + '/**/*.java' }
+    main.java.excludes = [
+      '**/build/**',
     ]
-    main.res.srcDirs = [
-      'res',
-      'res-public'
-    ]
-    main.assets.srcDir 'assets'
-    main.resources.srcDir 'src'
+    srcDirs.forEach {
+      main.res.srcDirs += 'java/' + it + '/res'
+      main.res.srcDirs += 'java/' + it + '/res-public'
+    }
 
-    androidTest.setRoot('tests')
-    androidTest.java.srcDir 'tests/src'
-    androidTest.res.srcDir 'tests/res'
-    androidTest.manifest.srcFile 'tests/AndroidManifest.xml'
-
-    test.java.srcDir 'jvm-tests/src'
-  }
-
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_7
-    targetCompatibility JavaVersion.VERSION_1_7
+    test.java.srcDir 'javatests'
   }
 
   buildTypes.all {
-    consumerProguardFiles 'proguard-rules.pro'
-  }
-
-  aaptOptions {
-    additionalParameters "--no-version-vectors"
+    consumerProguardFiles 'proguard-behaviors.pro'
   }
 }
 
-android.libraryVariants.all { variant ->
-  def name = variant.buildType.name
+// TODO: setup API txt generation
 
-  if (name.equals(com.android.builder.core.BuilderConstants.DEBUG)) {
-    return; // Skip debug builds.
-  }
-  def suffix = name.capitalize()
-
-  def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
-    dependsOn variant.javaCompile
-    from variant.javaCompile.destinationDir
-    from 'LICENSE.txt'
-  }
-  def javadocTask = project.tasks.create(name: "javadoc${suffix}", type: Javadoc) {
-    source android.sourceSets.main.java
-    classpath = files(variant.javaCompile.classpath.files) + files(
-        "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+task generateJavadocs(type: Javadoc) {
+  if (project.hasProperty("online")) {
+    options.addStringOption("toroot", "/")
+    options.addStringOption("hdf", "android.whichdoc online")
+    options.addStringOption("hdf", "dac")
+    options.addBooleanOption("devsite", true)
+    options.addBooleanOption("yamlV2", true)
+    options.addStringOption("dac_libraryroot", "com/google/android/material")
+    options.addStringOption("dac_dataname", "MATERIAL_DATA")
   }
 
-  def javadocJarTask = project.tasks.create(name: "javadocJar${suffix}", type: Jar) {
-    classifier = 'javadoc'
-    from 'build/docs/javadoc'
-  }
+  if (project.hasProperty("docletPathRoot")) {
+    def docletPathRoot = project.property("docletPathRoot")
 
-  def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
+    source = android.sourceSets.main.java.source
+    source = source.findAll { it.name.endsWith(".java") }
+    title = null
+    destinationDir = new File("doclava-out")
+    classpath = files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+    options.addStringOption("federate Android", "https://developer.android.com")
+    options.encoding = "UTF-8"
+    options.doclet = "com.google.doclava.Doclava"
+    options.docletpath = [
+      file(docletPathRoot + "/doclava/current/doclava.jar"),
+      file(docletPathRoot + "/jsilver/v1_0_0/jsilver.jar")
+    ]
+    // TODO: remove once all errors are resolved
+    failOnError false
   }
+}
 
-  artifacts.add('archives', javadocJarTask);
-  artifacts.add('archives', sourcesJarTask);
+afterEvaluate {
+  generateJavadocs.classpath += files(android.libraryVariants.collect { variant ->
+    variant.javaCompile.classpath.files
+  })
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      repository(url: rootProject.ext.mavenRepoUrl)
+    }
+  }
 }

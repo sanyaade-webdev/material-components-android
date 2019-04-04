@@ -1,3 +1,6 @@
+[![Build Status](https://img.shields.io/travis/material-components/material-components-android/master.svg)](https://travis-ci.org/material-components/material-components-android/)
+[![Chat](https://img.shields.io/discord/259087343246508035.svg)](https://discord.gg/material-components)
+
 # Material Components for Android
 
 Material Components for Android (MDC-Android) help developers execute
@@ -5,16 +8,22 @@ Material Components for Android (MDC-Android) help developers execute
 engineers and UX designers at Google, these components enable a reliable
 development workflow to build beautiful and functional Android apps.
 
-Material Components for Android are based on Android’s Design support library
-(DesignLib) which will continue to be released as part of Android’s SDK.
-Development will take place on GitHub, and stable versions will be synced to
-Android’s SDK based on the SDK’s release schedules.
+Material Components for Android is a drop-in replacement for Android's
+Design Support Library.
+
+## Getting Started
+
+For information on how to get started with Material Components for Android,
+take a look at our [Getting Started](docs/getting-started.md) guide.
 
 ## Useful Links
-- [All Components](lib/)
-- [Contributing](CONTRIBUTING.md)
+- [All Components](https://github.com/material-components/material-components-android/tree/master/lib/)
+- [Getting Started](docs/getting-started.md)
+- [Contributing](docs/contributing.md)
+- [Building From Source](docs/building-from-source.md)
+- [Catalog App](docs/catalog-app.md)
 - [Class
-  documentation](https://developer.android.com/reference/android/support/design/widget/package-summary.html)
+  documentation](https://developer.android.com/reference/com/google/android/material/classes)
   (external site)
 - [MDC-Android on Stack
   Overflow](https://www.stackoverflow.com/questions/tagged/material-components+android)
@@ -25,62 +34,7 @@ Android’s SDK based on the SDK’s release schedules.
 - [Material.io](https://www.material.io) (external site)
 - [Material Design Guidelines](https://material.google.com) (external site)
 
-## Getting Started
+## Documentation
 
-### Using the support library version
-
-For most users, the Android Design support library is the best version to use in
-their application. The Android SDK contains the latest stable version of this
-library. To use it:
-
-1. Make sure you've downloaded the Android Support Repository using the SDK
-   Manager.
-2. Open the `build.gradle` file for your application.
-3. Add the Design support library to the `dependencies` section:
-
-  ```groovy
-  dependencies {
-    // ...
-    compile 'com.android.support:design:25.1.0'
-    // ...
-  }
-  ```
-
-### Building from source
-
-If you'll be contributing to the library, or need a version newer than what has
-been released in the Android support libraries, Material Components for Android
-can also be built from source. To do so:
-
-Clone this repository:
-
-```sh
-git clone https://github.com/material-components/material-components-android.git
-```
-
-Then, build an AAR using Gradle:
-
-```sh
-./gradlew assembleRelease
-```
-
-(the AAR file will be located in `lib/build/outputs/aar/`)
-
-### Running tests
-
-Material Components for Android has JVM tests as well as Emulator tests.
-
-To run the JVM tests, do:
-
-```
-./gradlew test
-```
-
-To run the emulator tests, ensure you have [a virtual device set
-up](https://developer.android.com/studio/run/managing-avds.html) and do:
-
-```
-./gradlew androidConnectedTest
-```
-
-
+*   [Directory structure](docs/directorystructure.md)
+*   [Components](docs/components/)
